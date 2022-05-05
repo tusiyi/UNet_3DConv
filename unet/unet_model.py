@@ -1,6 +1,7 @@
 """ Full assembly of the parts to form the complete network """
 
-from .unet_parts import *
+from unet_parts import *
+from torchsummary import summary
 
 
 class UNet(nn.Module):
@@ -34,3 +35,14 @@ class UNet(nn.Module):
         x = self.up4(x, x1)
         logits = self.outc(x)
         return logits
+
+
+# network checkout
+if __name__ == '__main__':
+    net = UNet(n_channels=3, n_classes=2, bilinear=True)
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    net.to(device=device)
+
+    summary(net, (1, 3, 256, 512))
+    for layer, value in net.state_dict().items():
+        print(layer + f': {value.shape}')
