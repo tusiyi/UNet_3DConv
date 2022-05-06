@@ -13,14 +13,12 @@ class DoubleConv(nn.Module):
         if not mid_channels:
             mid_channels = out_channels
         self.double_conv = nn.Sequential(
-            # nn.Conv2d(in_channels, mid_channels, kernel_size=3, padding=1, bias=False),
             nn.Conv3d(in_channels, mid_channels, kernel_size=(3, 3, 3), padding=(1, 1, 1), bias=False),
-            nn.BatchNorm2d(mid_channels),
+            nn.BatchNorm3d(mid_channels),
             nn.ReLU(inplace=True),
-            # nn.Conv2d(mid_channels, out_channels, kernel_size=3, padding=1, bias=False),
             # kernel_size padding 第一维度为depth
             nn.Conv3d(mid_channels, out_channels, kernel_size=(3, 3, 3), padding=(1, 1, 1), bias=False),
-            nn.BatchNorm2d(out_channels),
+            nn.BatchNorm3d(out_channels),
             nn.ReLU(inplace=True)
         )
 
