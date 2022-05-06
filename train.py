@@ -9,7 +9,7 @@ import torch.nn.functional as F
 import wandb
 from torch import optim
 from torch.utils.data import DataLoader, random_split
-from torchsummary import summary
+# from torchsummary import summary
 from tqdm import tqdm
 
 from utils.data_loading import BasicDataset, CarvanaDataset
@@ -17,12 +17,8 @@ from utils.dice_score import dice_loss
 from evaluate import evaluate
 from unet import UNet
 
-# dir_img = Path('/media/tsy/F/BDD100K/bdd100k_videos_train_00/imgs&labels/image/')
-# dir_mask = Path('/media/tsy/F/BDD100K/bdd100k_videos_train_00/imgs&labels/label/')  # 灰度值0-255
-# dir_mask = Path('./data/label/')  # 灰度值0-127
-# 单帧预测下一帧
-dir_img = Path('/media/tsy/F/BDD100K/bdd100k_videos_train_00/imgs&labels_1_1/train_image')
-dir_mask = Path('/media/tsy/F/BDD100K/bdd100k_videos_train_00/imgs&labels_1_1/train_label')
+dir_img = Path('./data/imgs')
+dir_mask = Path('./data/masks')
 dir_checkpoint = Path('./checkpoints/')
 
 
@@ -36,11 +32,8 @@ def train_net(net,
               img_scale: float = 0.5,
               amp: bool = False):
     # 1. Create dataset
-    dataset = BasicDataset(dir_img, dir_mask, img_scale)
-    # try:
-    #     dataset = CarvanaDataset(dir_img, dir_mask, img_scale)
-    # except (AssertionError, RuntimeError):
-    #     dataset = BasicDataset(dir_img, dir_mask, img_scale)
+    dataset = BasicDataset(dir_img, dir_mask, img_scale, mask_suffix='_mask')  # CarvanaDataset
+    # dataset = BasicDataset(dir_img, dir_mask, img_scale)  # 一般的数据集
 
     # 2. Split into train / validation partitions
     n_val = int(len(dataset) * val_percent)
@@ -161,7 +154,7 @@ def get_args():
                         help='Percent of the data that is used as validation (0-100)')
     parser.add_argument('--amp', action='store_true', default=True, help='Use mixed precision')
     parser.add_argument('--bilinear', action='store_true', default=True, help='Use bilinear upsampling')
-    parser.add_argument('--classes', '-c', type=int, default=128, help='Number of classes')
+    parser.add_argument('--classes', '-c', type=int, default=2, help='Number of classes')
 
     return parser.parse_args()
 
@@ -177,7 +170,7 @@ if __name__ == '__main__':
     # n_channels=3 for RGB images
     # n_classes is the number of probabilities you want to get per pixel
     # net = UNet(n_channels=3, n_classes=args.classes, bilinear=args.bilinear)  # 三通道输入
-    net = UNet(n_channels=1, n_classes=args.classes, bilinear=args.bilinear)
+    net = UNet(n_channels=3, n_classes=args.classes, bilinear=args.bilinear)
     # for layer, param in net.state_dict().items():  # param is weight or bias(Tensor)
     #     print(layer, param.shape, sep=", ")
     # summary(net, (1, 360, 640))

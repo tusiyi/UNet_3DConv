@@ -33,7 +33,6 @@ class BasicDataset(Dataset):
         assert newW > 0 and newH > 0, 'Scale is too small, resized images would have no pixel'
 
         pil_img = pil_img.resize((newW, newH), resample=Image.NEAREST if is_mask else Image.BICUBIC)  # original
-        # pil_img = pil_img.resize((newW, newH), resample=Image.BICUBIC)
 
         img_ndarray = np.asarray(pil_img)
 
@@ -42,16 +41,10 @@ class BasicDataset(Dataset):
             if img_ndarray.ndim == 2:
                 img_ndarray = img_ndarray[np.newaxis, ...]
             else:
-                img_ndarray = img_ndarray.transpose((2, 0, 1))
-
+                img_ndarray = img_ndarray.transpose((2, 0, 1))  # PIL 读取图像，通道数在最后一维，Pytorch输入为C H W
+            # reshape为3D卷积的输入 C D H W
+            img_ndarray.reshape((1, 3, img_ndarray.shape[1], img_ndarray.shape[2]))
             img_ndarray = img_ndarray / 255
-
-        # if img_ndarray.ndim == 2:
-        #     img_ndarray = img_ndarray[np.newaxis, ...]
-        # else:
-        #     img_ndarray = img_ndarray.transpose((2, 0, 1))
-        #
-        # img_ndarray = img_ndarray / 255
 
         return img_ndarray
 
@@ -81,7 +74,7 @@ class BasicDataset(Dataset):
         img = self.preprocess(img, self.scale, is_mask=False)
         mask = self.preprocess(mask, self.scale, is_mask=True)
 
-        mask = mask // 2  # 2022.05.02训练加的，为了将0-255转为0-127
+        # mask = mask // 2  # 2022.05.02训练加的，为了将0-255转为0-127
 
         return {
             'image': torch.as_tensor(img.copy()).float().contiguous(),
