@@ -91,7 +91,7 @@ def train_net(net,
                     masks_pred = net(images)
                     loss = criterion(masks_pred, true_masks) \
                            + dice_loss(F.softmax(masks_pred, dim=1).float(),
-                                       F.one_hot(true_masks, net.n_classes).permute(0, 3, 1, 2).float(),
+                                       F.one_hot(true_masks, net.n_classes).permute(0, 4, 1, 2, 3).float(),
                                        multiclass=True)
 
                 optimizer.zero_grad(set_to_none=True)
@@ -170,7 +170,7 @@ if __name__ == '__main__':
     # n_channels=3 for RGB images
     # n_classes is the number of probabilities you want to get per pixel
     # net = UNet(n_channels=3, n_classes=args.classes, bilinear=args.bilinear)  # 三通道输入
-    net = UNet(n_channels=3, n_classes=args.classes, bilinear=args.bilinear)
+    net = UNet(n_channels=1, n_classes=args.classes, bilinear=args.bilinear)
     # for layer, param in net.state_dict().items():  # param is weight or bias(Tensor)
     #     print(layer, param.shape, sep=", ")
     # summary(net, (1, 360, 640))

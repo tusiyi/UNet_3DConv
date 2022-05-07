@@ -39,11 +39,9 @@ class BasicDataset(Dataset):
         # original codes
         if not is_mask:
             if img_ndarray.ndim == 2:
-                img_ndarray = img_ndarray[np.newaxis, ...]
+                img_ndarray = img_ndarray[np.newaxis, ...]  # 单通道 扩展
             else:
                 img_ndarray = img_ndarray.transpose((2, 0, 1))  # PIL 读取图像，通道数在最后一维，Pytorch输入为C H W
-            # reshape为3D卷积的输入 C D H W
-            img_ndarray.reshape((1, 3, img_ndarray.shape[1], img_ndarray.shape[2]))
             img_ndarray = img_ndarray / 255
 
         return img_ndarray
@@ -77,8 +75,9 @@ class BasicDataset(Dataset):
         # mask = mask // 2  # 2022.05.02训练加的，为了将0-255转为0-127
 
         return {
-            'image': torch.as_tensor(img.copy()).float().contiguous(),
-            'mask': torch.as_tensor(mask.copy()).long().contiguous()
+            # 改为3D卷积后需要扩展两个tensor的维度，通过unsqueeze完成 （3D卷积的输入 C D H W）
+            'image': torch.as_tensor(img.copy()).unsqueeze(0).float().contiguous(),
+            'mask': torch.as_tensor(mask.copy()).unsqueeze(0).long().contiguous()
         }
 
 
