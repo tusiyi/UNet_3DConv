@@ -72,7 +72,7 @@ class BasicDataset(Dataset):
         img = self.preprocess(img, self.scale, is_mask=False)
         mask = self.preprocess(mask, self.scale, is_mask=True)
 
-        # mask = mask // 2  # 2022.05.02训练加的，为了将0-255转为0-127
+        mask = mask // 2  # 2022.05.02训练加的，为了将0-255的label灰度图转为0-127（对应128个分类）
 
         return {
             # 改为3D卷积后需要扩展两个tensor的维度，通过unsqueeze完成 （3D卷积的输入 C D H W）

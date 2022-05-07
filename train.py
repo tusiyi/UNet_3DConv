@@ -32,8 +32,8 @@ def train_net(net,
               img_scale: float = 0.5,
               amp: bool = False):
     # 1. Create dataset
-    dataset = BasicDataset(dir_img, dir_mask, img_scale, mask_suffix='_mask')  # CarvanaDataset
-    # dataset = BasicDataset(dir_img, dir_mask, img_scale)  # 一般的数据集
+    # dataset = BasicDataset(dir_img, dir_mask, img_scale, mask_suffix='_mask')  # CarvanaDataset
+    dataset = BasicDataset(dir_img, dir_mask, img_scale)  # 一般的数据集
 
     # 2. Split into train / validation partitions
     n_val = int(len(dataset) * val_percent)
@@ -146,7 +146,7 @@ def get_args():
     parser = argparse.ArgumentParser(description='Train the UNet on images and target masks')
     parser.add_argument('--epochs', '-e', metavar='E', type=int, default=5, help='Number of epochs')
     parser.add_argument('--batch-size', '-b', dest='batch_size', metavar='B', type=int, default=1, help='Batch size')
-    parser.add_argument('--learning-rate', '-l', metavar='LR', type=float, default=1e-4,
+    parser.add_argument('--learning-rate', '-l', metavar='LR', type=float, default=1e-2,
                         help='Learning rate', dest='lr')
     parser.add_argument('--load', '-f', type=str, default=False, help='Load model from a .pth file')
     parser.add_argument('--scale', '-s', type=float, default=0.5, help='Downscaling factor of the images')
@@ -154,7 +154,7 @@ def get_args():
                         help='Percent of the data that is used as validation (0-100)')
     parser.add_argument('--amp', action='store_true', default=True, help='Use mixed precision')
     parser.add_argument('--bilinear', action='store_true', default=True, help='Use bilinear upsampling')
-    parser.add_argument('--classes', '-c', type=int, default=2, help='Number of classes')
+    parser.add_argument('--classes', '-c', type=int, default=128, help='Number of classes')
 
     return parser.parse_args()
 
